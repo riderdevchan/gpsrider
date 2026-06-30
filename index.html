@@ -3,37 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPS Mileage Tracker</title>
+    <title>ติดตั้งโปรแกรม</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007aff">
+    
     <style>
-        /* 5 Themes Definition */
-        :root[data-theme="cozy-dark"] {
-            --bg-color: #1a1c1e; --card-bg: #2d3135; --text-main: #f1f0f4; --accent: #8accff;
-        }
-        :root[data-theme="soft-mint"] {
-            --bg-color: #f4f9f4; --card-bg: #ffffff; --text-main: #2d3732; --accent: #4caf50;
-        }
-        :root[data-theme="warm-sand"] {
-            --bg-color: #fcf8f2; --card-bg: #ffffff; --text-main: #4a3e3d; --accent: #dd9e44;
-        }
-        :root[data-theme="ocean-breeze"] {
-            --bg-color: #eef5f9; --card-bg: #ffffff; --text-main: #2c3e50; --accent: #3498db;
-        }
-        :root[data-theme="lavender-calm"] {
-            --bg-color: #f7f3f9; --card-bg: #ffffff; --text-main: #3a2e3f; --accent: #9b59b6;
-        }
-
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0; padding: 16px;
-            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f5f5f7;
         }
+        .install-container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            max-width: 350px;
+            width: 100%;
+        }
+        .app-icon {
+            width: 96px;
+            height: 96px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+        .install-btn {
+            background-color: #007aff;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            display: none; /* ซ่อนปุ่มไว้ก่อน จะโชว์เมื่อเบราว์เซอร์พร้อมให้ติดตั้ง */
+        }
+        .install-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
 
-        .container { max-width: 500px; margin: 0 auto; }
-        .card {
-            background: var(--card-bg);
+<div class="install-container">
+    <img src="icon.png" alt="App Icon" class="app-icon">
+    <h2>ติดตั้งโปรแกรม</h2>
+    <button class="install-btn" id="installBtn">ติดตั้งแอป</button>
+</div>
+
+<script>
+    // 2. ลงทะเบียน Service Worker เพื่อให้เป็น PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js')
+            .then(() => console.log('Service Worker Registered'))
+            .catch(err => console.log('Service Worker Reg Error:', err));
+    }
+
+    // 3. จัดการระบบการกดปุ่มติดตั้ง (Install Prompt)
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // ป้องกันไม่ให้เบราว์เซอร์เปิดหน้าต่างติดตั้งเองโดยอัตโนมัติ
+        e.preventDefault();
+        // เก็บเหตุการณ์ไว้เรียกใช้ตอนกดปุ่ม
+        deferredPrompt = e;
+        // แสดงปุ่มติดตั้งให้ผู้ใช้เห็น
+        installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // เปิดหน้าต่างยืนยันการติดตั้งของเบราว์เซอร์
+            deferredPrompt.prompt();
+            // รอผลการตอบรับจากผู้ใช้
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response to the install prompt: ${outcome}`);
+            // เคลียร์ค่า
+            deferredPrompt = null;
+            // ซ่อนปุ่มเมื่อกดยอมรับแล้ว
+            installBtn.style.display = 'none';
+        }
+    });
+
+    // ซ่อนปุ่มหากติดตั้งแอปเรียบร้อยแล้ว
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA ถูกติดตั้งเรียบร้อยแล้ว');
+        installBtn.style.display = 'none';
+    });
+</script>
+
+</body>
+</html>
             border-radius: 16px; padding: 20px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             margin-bottom: 16px; text-align: center;
