@@ -4,324 +4,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ติดตั้งโปรแกรม</title>
+    
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#007aff">
+    <meta name="theme-color" content="#1a1a1a">
     
     <style>
+        /* ตั้งค่าพื้นฐาน */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            padding: 15px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f5f5f7;
+            min-height: 100vh;
         }
+
+        /* ---------------------------------- */
+        /* ส่วนที่ 1: กล่องติดตั้ง PWA (ด้านบน) */
+        /* ---------------------------------- */
         .install-container {
-            text-align: center;
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            max-width: 350px;
+            background: #1e1e1e;
+            border: 1px solid #333;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            max-width: 400px;
             width: 100%;
-        }
-        .app-icon {
-            width: 96px;
-            height: 96px;
+            text-align: center;
             margin-bottom: 20px;
-            object-fit: contain;
+            display: none; /* จะแสดงอัตโนมัติเมื่อระบบพร้อมติดตั้ง */
         }
+        
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 12px;
+            object-fit: contain;
+            border-radius: 12px;
+        }
+        
+        .install-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
         .install-btn {
-            background-color: #007aff;
+            background-color: #2f80ed;
             color: white;
             border: none;
-            padding: 12px 40px;
-            font-size: 16px;
-            font-weight: 600;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: bold;
             border-radius: 25px;
             cursor: pointer;
             transition: background-color 0.2s;
             width: 100%;
-            display: none; /* ซ่อนปุ่มไว้ก่อน จะโชว์เมื่อเบราว์เซอร์พร้อมให้ติดตั้ง */
         }
+        
         .install-btn:hover {
-            background-color: #0056b3;
+            background-color: #1b66ca;
+        }
+
+        /* ---------------------------------- */
+        /* ส่วนที่ 2: โครงสร้างเนื้อหาหลัก (เรือนไมล์เดิมของคุณ) */
+        /* ---------------------------------- */
+        .main-app-content {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        /* เรือนไมล์และตัวเลข */
+        .needle-gauge {
+            width: 150px;
+            height: 150px;
+            border: 8px solid #333;
+            border-radius: 50%;
+            position: relative;
+            margin: 20px auto;
+            background: #111;
+        }
+
+        .needle {
+            width: 4px;
+            height: 65px;
+            background: red;
+            position: absolute;
+            bottom: 50%;
+            left: calc(50% - 2px);
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            transition: transform 0.2s ease-out;
+        }
+
+        .distance-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            color: #00ff66;
+        }
+
+        .status-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #ffcc00;
+            margin-bottom: 15px;
+        }
+
+        /* ปุ่มระบบงาน */
+        .btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin: 8px 0;
+            transition: opacity 0.2s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-start {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #7f8c8d;
+            color: white;
         }
     </style>
 </head>
 <body>
 
-<div class="install-container">
-    <img src="icon.png" alt="App Icon" class="app-icon">
-    <h2>ติดตั้งโปรแกรม</h2>
-    <button class="install-btn" id="installBtn">ติดตั้งแอป</button>
-</div>
+    <div class="install-container" id="pwaBox">
+        <img src="icon.png" alt="App Icon" class="app-icon">
+        <div class="install-title">ติดตั้งโปรแกรมระบบเรือนไมล์</div>
+        <button class="install-btn" id="installBtn">ติดตั้งแอปลงมือถือ</button>
+    </div>
+
+    <div class="main-app-content">
+        
+        <div class="form-group">
+            <label>เลือกธีมสบายตา</label>
+            <select>
+                <option>Cozy Dark (มืดสบายตา)</option>
+                <option>Light Mode (สว่าง)</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>รูปแบบเรือนไมล์</label>
+            <select>
+                <option>แบบดิจิตอล (ตัวเลข)</option>
+                <option>แบบเข็ม</option>
+            </select>
+        </div>
+
+        <div class="needle-gauge">
+            <div class="needle" id="gaugeNeedle"></div>
+        </div>
+
+        <div class="distance-display">0.00 กม.</div>
+        <div class="distance-display" style="font-size: 1.1rem; color: #aaa;">0.00 กม./ชม.</div>
+        
+        <div class="status-text">สถานะการทำงาน: หยุดงาน</div>
+        
+        <button class="btn btn-start">เริ่มงาน</button>
+        
+        <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 10px;">ประวัติการบันทึก</h3>
+            <button class="btn btn-danger">ลบประวัติทั้งหมด</button>
+        </div>
+        
+    </div>
 
 <script>
-    // 2. ลงทะเบียน Service Worker เพื่อให้เป็น PWA
+    // --- ระบบ PWA Service Worker ---
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js')
             .then(() => console.log('Service Worker Registered'))
-            .catch(err => console.log('Service Worker Reg Error:', err));
+            .catch(err => console.log('Service Worker Error:', err));
     }
 
-    // 3. จัดการระบบการกดปุ่มติดตั้ง (Install Prompt)
+    // --- ระบบปุ่มกดติดตั้ง PWA ---
     let deferredPrompt;
+    const pwaBox = document.getElementById('pwaBox');
     const installBtn = document.getElementById('installBtn');
 
     window.addEventListener('beforeinstallprompt', (e) => {
-        // ป้องกันไม่ให้เบราว์เซอร์เปิดหน้าต่างติดตั้งเองโดยอัตโนมัติ
         e.preventDefault();
-        // เก็บเหตุการณ์ไว้เรียกใช้ตอนกดปุ่ม
         deferredPrompt = e;
-        // แสดงปุ่มติดตั้งให้ผู้ใช้เห็น
-        installBtn.style.display = 'block';
+        // แสดงกล่องติดตั้งเมื่อระบบพร้อม
+        pwaBox.style.display = 'block';
     });
 
     installBtn.addEventListener('click', async () => {
         if (deferredPrompt) {
-            // เปิดหน้าต่างยืนยันการติดตั้งของเบราว์เซอร์
             deferredPrompt.prompt();
-            // รอผลการตอบรับจากผู้ใช้
             const { outcome } = await deferredPrompt.userChoice;
-            console.log(`User response to the install prompt: ${outcome}`);
-            // เคลียร์ค่า
+            console.log(`User response: ${outcome}`);
             deferredPrompt = null;
-            // ซ่อนปุ่มเมื่อกดยอมรับแล้ว
-            installBtn.style.display = 'none';
+            pwaBox.style.display = 'none';
         }
     });
 
-    // ซ่อนปุ่มหากติดตั้งแอปเรียบร้อยแล้ว
     window.addEventListener('appinstalled', () => {
-        console.log('PWA ถูกติดตั้งเรียบร้อยแล้ว');
-        installBtn.style.display = 'none';
+        console.log('PWA Installed');
+        pwaBox.style.display = 'none';
     });
 </script>
 
-</body>
-</html>
-            border-radius: 16px; padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 16px; text-align: center;
-        }
-
-        /* Speedometer Styles */
-        .gauge-box { position: relative; width: 200px; height: 200px; margin: 0 auto; }
-        .digital-display { font-size: 3rem; font-weight: bold; color: var(--accent); margin-top: 40px; }
-        
-        .needle-gauge {
-            width: 100%; height: 100%; border: 8px solid #ccc; border-radius: 50%;
-            position: relative; transition: transform 0.2s;
-        }
-        .needle {
-            width: 4px; height: 90px; background: red;
-            position: absolute; bottom: 50%; left: 50%;
-            transform-origin: bottom center; transform: rotate(0deg);
-            transition: transform 0.2s ease-out;
-        }
-
-        .btn {
-            border: none; padding: 12px 24px; border-radius: 8px;
-            font-size: 1rem; font-weight: bold; cursor: pointer; width: 100%; margin: 8px 0;
-        }
-        .btn-start { background-color: var(--accent); color: white; }
-        .btn-stop { background-color: #e74c3c; color: white; }
-        .btn-danger { background-color: #7f8c8d; color: white; }
-
-        .hidden { display: none; }
-        select { padding: 8px; border-radius: 6px; width: 100%; margin-bottom: 12px; }
-        .log-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd; }
-    </style>
-</head>
-<body data-theme="cozy-dark">
-
-<div class="container">
-    <div class="card">
-        <label>เลือกธีมสบายตา</label>
-        <select id="themeSelect" onchange="changeTheme(this.value)">
-            <option value="cozy-dark">Cozy Dark (มืดสบายตา)</option>
-            <option value="soft-mint">Soft Mint (เขียวมิ้นท์อ่อน)</option>
-            <option value="warm-sand">Warm Sand (ครีมอุ่น)</option>
-            <option value="ocean-breeze">Ocean Breeze (ฟ้าสบายตา)</option>
-            <option value="lavender-calm">Lavender Calm (ม่วงผ่อนคลาย)</option>
-        </select>
-
-        <label>รูปแบบเรือนไมล์</label>
-        <select id="gaugeSelect" onchange="changeGauge(this.value)">
-            <option value="digital">แบบดิจิตอล (ตัวเลข)</option>
-            <option value="needle">แบบเข็ม</option>
-        </select>
-    </div>
-
-    <div class="card">
-        <div id="digitalGauge" class="digital-display">0.00 <span style="font-size:1rem">กม.</span></div>
-        
-        <div id="needleGauge" class="gauge-box hidden">
-            <div class="needle-gauge">
-                <div class="needle" id="gaugeNeedle"></div>
-            </div>
-            <p id="needleText" style="margin-top:10px;">0.00 กม.</p>
-        </div>
-        
-        <p>สถานะการทำงาน: <span id="status">หยุดทำงาน</span></p>
-    </div>
-
-    <div class="card">
-        <button id="btnAction" class="btn btn-start" onclick="toggleTracking()">เริ่มงาน</button>
-    </div>
-
-    <div class="card">
-        <h3>ประวัติการบันทึกรายวัน</h3>
-        <div id="logList"></div>
-        <button class="btn btn-danger" style="margin-top: 15px;" onclick="clearLogs()">ลบประวัติทั้งหมด</button>
-    </div>
-</div>
-
-<script>
-    let isTracking = false;
-    let watchId = null;
-    let totalDistance = 0;
-    let lastPosition = null;
-    let currentTheme = 'cozy-dark';
-    let currentGauge = 'digital';
-
-    // โหลดข้อมูลเก่าที่บันทึกไว้
-    window.onload = function() {
-        if(localStorage.getItem('gps_logs')) renderLogs();
-        // เช็คการอัปเดตแอปอัตโนมัติจาก Service Worker
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(reg => {
-                reg.addEventListener('updatefound', () => {
-                    const newWorker = reg.installing;
-                    newWorker.addEventListener('statechange', () => {
-                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            alert('มีการอัปเดตเวอร์ชันใหม่! กำลังรีโหลดแอป...');
-                            window.location.reload();
-                        }
-                    });
-                });
-            });
-        }
-    };
-
-    function changeTheme(theme) {
-        document.body.setAttribute('data-theme', theme);
-    }
-
-    function changeGauge(type) {
-        if(type === 'digital') {
-            document.getElementById('digitalGauge').classList.remove('hidden');
-            document.getElementById('needleGauge').classList.add('hidden');
-        } else {
-            document.getElementById('digitalGauge').classList.add('hidden');
-            document.getElementById('needleGauge').classList.remove('hidden');
-        }
-    }
-
-    function toggleTracking() {
-        if (!isTracking) {
-            startTracking();
-        } else {
-            stopTracking();
-        }
-    }
-
-    function startTracking() {
-        if (!navigator.geolocation) return alert('อุปกรณ์ของคุณไม่รองรับ GPS');
-        
-        isTracking = true;
-        totalDistance = 0;
-        lastPosition = null;
-        
-        document.getElementById('btnAction').textContent = "จบงาน (บันทึกข้อมูล)";
-        document.getElementById('btnAction').className = "btn btn-stop";
-        document.getElementById('status').textContent = "กำลังบันทึกเส้นทางเบื้องหลัง...";
-
-        // เริ่มดักจับพิกัด (เปิดทิ้งไว้แม้ปิดจอ/สลับแอปในโหมด PWA)
-        watchId = navigator.geolocation.watchPosition(updateLocation, handleGPSError, {
-            enableHighAccuracy: true,
-            maximumAge: 0
-        });
-    }
-
-    function updateLocation(position) {
-        if (!isTracking) return;
-        
-        const lat = position.coords.coords ? position.coords.coords.latitude : position.coords.latitude;
-        const lon = position.coords.coords ? position.coords.coords.longitude : position.coords.longitude;
-
-        if (lastPosition) {
-            const distance = calculateDistance(lastPosition.lat, lastPosition.lon, lat, lon);
-            totalDistance += distance;
-            updateUI(totalDistance);
-        }
-        lastPosition = { lat, lon };
-    }
-
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // รัศมีโลก (กม.)
-        const dLat = (lat2 - lat1) * Math.PI / 180;
-        const dLon = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
-    }
-
-    function updateUI(kms) {
-        // อัปเดตแบบดิจิตอล
-        document.getElementById('digitalGauge').innerHTML = `${kms.toFixed(2)} <span style="font-size:1rem">กม.</span>`;
-        // อัปเดตแบบเข็ม (หมุนตามระยะทาง สมมติสูงสุด 100 กม. หมุน 180 องศา)
-        document.getElementById('needleText').textContent = `${kms.toFixed(2)} กม.`;
-        let degrees = Math.min((kms / 100) * 180, 180);
-        document.getElementById('gaugeNeedle').style.transform = `rotate(${degrees}deg)`;
-    }
-
-    function stopTracking() {
-        isTracking = false;
-        navigator.geolocation.clearWatch(watchId);
-        
-        // บันทึกลงความจำเครื่องรายวัน
-        saveLog(totalDistance);
-        
-        // รีเซ็ตปุ่ม
-        document.getElementById('btnAction').textContent = "เริ่มงาน";
-        document.getElementById('btnAction').className = "btn btn-start";
-        document.getElementById('status').textContent = "จบงานแล้ว บันทึกข้อมูลเรียบร้อย";
-        
-        updateUI(0);
-    }
-
-    function handleGPSError(err) {
-        console.warn('GPS Error: ' + err.message);
-    }
-
-    function saveLog(kms) {
-        let logs = JSON.parse(localStorage.getItem('gps_logs')) || [];
-        const today = new Date().toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' });
-        logs.push({ date: today, distance: kms.toFixed(2) });
-        localStorage.setItem('gps_logs', JSON.stringify(logs));
-        renderLogs();
-    }
-
-    function renderLogs() {
-        let logs = JSON.parse(localStorage.getItem('gps_logs')) || [];
-        let html = '';
-        logs.forEach(item => {
-            html += `<div class="log-item"><span>${item.date}</span><b>${item.distance} กม.</b></div>`;
-        });
-        document.getElementById('logList').innerHTML = html;
-    }
-
-    function clearLogs() {
-        if(confirm('คุณต้องการลบข้อมูลประวัติทั้งหมดใช่หรือไม่?')) {
-            localStorage.removeItem('gps_logs');
-            document.getElementById('logList').innerHTML = '';
-        }
-    }
-</script>
 </body>
 </html>
