@@ -1,11 +1,10 @@
 {
-  "name": "GPS Mileage Tracker",
-  "short_name": "GPSTracker",
+  "name": "My App Program",
+  "short_name": "My App",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#1a1c1e",
-  "theme_color": "#8accff",
-  "orientation": "portrait",
+  "background_color": "#f5f5f7",
+  "theme_color": "#007aff",
   "icons": [
     {
       "src": "icon.png",
